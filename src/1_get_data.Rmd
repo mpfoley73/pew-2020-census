@@ -39,7 +39,7 @@ pew_dat_0 <- foreign::read.spss(
 dim(pew_dat_0)
 ```
 
-The data set consists of 156 variables collected from 3,535 participants. Only a fraction of the columns are of interest for this analysis.
+The data set consists of 156 variables collected from 3,535 participants. Only a fraction of the columns are of interest for this analysis.^[The [Jan20 Census_methodology.pdf](https://github.com/mpfoley73/pew-2020-census/blob/main/data/Jan20%20Census_methodology.pdf) file located in the project data directory on [GitHub](https://github.com/mpfoley73/pew-2020-census/tree/main/data) includes a codebook of census variables.]
 
 ```{r}
 pew_dat_1 <- pew_dat_0 %>%
@@ -115,6 +115,10 @@ pew_dat_1 <- pew_dat_0 %>%
 pew_dat_1 %>% skimr::skim()
 ```
 
+The target population consisted of ... The survey sample results were weighted by gender (`ppgender`), age (`ppage`, `ppagecat`, `ppagecat4`), education (`ppeducat`), census region (`ppreg4`, `ppreg9`, `ppstateen`), race/ethnicity (`CENRACE2020_1` and `CENHISPAN2020_1` which I combined into `simple_eth`. An open text question asked to self-describe race, `RACEOE` and I counted instances coded as "protest" in `RACEOE_1`), internet access, political ideology (`IDEO`), volunteerism (volunteered, did not volunteer), voter registration (Yes , No), and Country of birth. `CASEID` is a unique identifier for the weighted group, and `weight` is the response weight.
+
+Among other questions, the survey asked three yes/no questions (`CENIDENTITYa`, `CENIDENTITYb`, and `CENIDENTITYc`) related to how central the respondent's cultural origin is to their self-identity.
+
 # Data Exploration 
 
 ```{r echo=FALSE}
@@ -138,13 +142,10 @@ plot_summary_by_var <- function(dat) {
       x = NULL, y = NULL,
       title = stringr::str_wrap("Black and Hispanic adults feel more connected to roots than White Adults", 40),
       caption = stringr::str_wrap(paste0(
-        "Note: White and Black adults include those who report being only one race ",
-        "and are not Hispanic. Hispanics are of any race. Share of respondents ",
-        "who didn't offer an answer not shown. <br>",
         "Source: Survey of U.S. adults conducted Jan. 3-13, 2020.",
-        "`Black and Hispanic Americans See Their Origins as Central to Who They Area, ",
-        "Less So for White Adults'."),
-        width = 55),
+        "`Black and Hispanic Americans See Their Origins as Central to Who ",
+        "They Are, Less So for White Adults'."),
+        width = 90),
       subtitle = "% saying they are..."
     ) +
     annotate("text", x = "", y = -.5, label = stringr::str_wrap(metric_levels[1], 12), 
@@ -195,9 +196,11 @@ summarize_metric <- function(dat, metric_var) {
 
 The following figures loosely follow Pew's 5/14/2021 report, [Black and Hispanic Americans See Their Origins as Central to Who They Are, Less So for White Adults](https://www.pewresearch.org/social-trends/2021/05/14/black-and-hispanic-americans-see-their-origins-as-central-to-who-they-are-less-so-for-white-adults/).
 
-The main conclusion from Pew's report is that the importance of ancestral roots varies by race and ethnicity. The first, second, and fourth figures in the report are based on three questions about the respondent's relationship to their cultural origin of their family. Question `CENIDENTITYa` asks how *central* their origins are to their identity; Question `CENIDENTITYb` asks how *familiar* they are with their origins; and `CENIDENTITYc` asks how *connected* the respondent is with their origins.
+The main conclusion from Pew's report is that the importance of ancestral roots varies by race and ethnicity. The first, second, and fourth figures in the report are based on three questions about the respondent's relationship to the cultural origin of their family. Question `CENIDENTITYa` asked how *central* their origins are to their identity; Question `CENIDENTITYb` asked how *familiar* they are with their origins; and `CENIDENTITYc` asked how *connected* the respondent is with their origins.
 
-### CENIDENTITYa
+<!-- :::: logic below creates style html within document -->
+
+### Centrality
 
 :::: {style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 10px;"}
 
@@ -210,7 +213,7 @@ The main conclusion from Pew's report is that the importance of ancestral roots 
 :::
 
 ::: {}
-```{r fig.height=3.5, fig.width=3.5, warning=FALSE, echo=FALSE}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_1 %>% 
   summarize_metric("CENIDENTITYa") %>%
   mutate(factor_var = fct_relevel(simple_eth, levels(pew_dat_1$simple_eth), after = 3)) %>%
@@ -221,7 +224,7 @@ pew_dat_1 %>%
 
 ::::
 
-### CENIDENTITYb
+### Familiarity
 
 :::: {style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 10px;"}
 
@@ -234,7 +237,7 @@ pew_dat_1 %>%
 :::
 
 ::: {}
-```{r fig.height=3.5, fig.width=3.5, warning=FALSE, echo=FALSE}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_1 %>% 
   summarize_metric("CENIDENTITYb") %>%
   mutate(factor_var = fct_relevel(simple_eth, levels(pew_dat_1$simple_eth), after = 3)) %>%
@@ -245,7 +248,7 @@ pew_dat_1 %>%
 
 ::::
 
-### CENIDENTITYc
+### Connectedness
 
 :::: {style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 10px;"}
 
@@ -258,7 +261,7 @@ pew_dat_1 %>%
 :::
 
 ::: {}
-```{r fig.height=3.5, fig.width=3.5, warning=FALSE, echo=FALSE}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_1 %>% 
   summarize_metric("CENIDENTITYc") %>%
   mutate(factor_var = fct_relevel(simple_eth, levels(pew_dat_1$simple_eth), after = 3)) %>%
@@ -271,9 +274,9 @@ pew_dat_1 %>%
 
 ## Relationship with Social and Demographic Factors
 
-The Ipsos survey includes three social and demographic variables that can further segment the race/ethnicity differences.
+The Ipsos survey data includes four social and demographic variables that can further segment the race/ethnicity differences: education, age, gender, and geograph location.
 
-```{r}
+```{r echo=FALSE}
 summarize_by_var <- function(dat, metric_var, factor_var) {
   metric_levels <- dat %>% pull(!!ensym(metric_var)) %>% levels()
   detail <- dat %>%
@@ -308,12 +311,12 @@ summarize_by_var <- function(dat, metric_var, factor_var) {
 
 Variable `ppeducat` is defined as the highest level of education received. The results below are likely influenced by age since younger respondents are unlikely to have a Bachelor's degree or higher.
 
-#### CENIDENTITYa
+#### Centrality
 
 :::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
 
 ::: {}
-Their is an inverse relationship between level of education received and the importance of family origins for all three race/ethnicity groups. Black Americans with less than a high school degree are a possible exception.
+There is an inverse relationship between level of education received and the importance of family origins for all three race/ethnicity groups. Black Americans with less than a high school degree are a possible exception.
 :::
 
 ::: {}
@@ -332,7 +335,7 @@ pew_dat_1 %>%
 
 ::::
 
-#### CENIDENTITYb
+#### Familiarity
 
 :::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
 
@@ -356,7 +359,7 @@ pew_dat_1 %>%
 
 ::::
 
-#### CENIDENTITYc
+#### Connectedness
 
 :::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
 
@@ -384,11 +387,14 @@ pew_dat_1 %>%
 
 Variables `ppage`, `ppagecat` (7 levels), `ppagect4` (4 levels) are the respondent's age.
 
-#### CENIDENTITYa
+#### Centrality
 
-<div style= "float:right;position: relative; top: -80px;">
-
-```{r warning=FALSE}
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Cultural origins are not central to the identity of White Americans regardless of age (perhaps a mild positive relationship?). For Black Americans there is a bell shaped distribution. For Hispanic Americans, cultural origins are central to identity regardless of age (perhaps a mild negative relationship?).
+:::
+::: {}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_1 %>% 
   summarize_by_var("CENIDENTITYa", "ppagecat") %>%
   mutate(
@@ -399,16 +405,17 @@ pew_dat_1 %>%
   facet_wrap(~simple_eth, nrow = 1) +
   ggtitle("Centrality of Origins Unrelated to Age")
 ```
+:::
+::::
 
-</div>
+#### Familiarity
 
-Cultural origins are not central to the identity of White Americans regardless of age (perhaps a mild positive relationship?). For Black Americans there is a bell shaped distribution. For Hispanic Americans, cultural origins are central to identity regardless of age (perhaps a mild negative relationship?).
-
-#### CENIDENTITYb
-
-<div style= "float:right;position: relative; top: -80px;">
-
-```{r warning=FALSE}
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Familiarity with family origins increases with age level for all three race/ethnicity groups. Black Americans over 75 years of age are a possible exception.
+:::
+::: {}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_1 %>% 
   summarize_by_var("CENIDENTITYb", "ppagecat") %>%
   mutate(
@@ -419,16 +426,17 @@ pew_dat_1 %>%
   facet_wrap(~simple_eth, nrow = 1) +
   ggtitle("Familiarity with Origins Increases with Age")
 ```
+:::
+::::
 
-</div>
+#### Connectedness
 
-Familiarity with family origins increases with age level for all three race/ethnicity groups. Black Americans over 75 years of age are a possible exception.
-
-#### CENIDENTITYc
-
-<div style= "float:right;position: relative; top: -80px;">
-
-```{r warning=FALSE}
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Connection to family origins does not appear to be related to age for any race/ethnicity.
+:::
+::: {}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_1 %>% 
   summarize_by_var("CENIDENTITYc", "ppagecat") %>%
   mutate(
@@ -439,20 +447,21 @@ pew_dat_1 %>%
   facet_wrap(~simple_eth, nrow = 1) +
   ggtitle("Connection with Origins Unrelated to Age")
 ```
-
-</div>
-
-Connection to family origins does not appear to be related to age for any race/ethnicity.
+:::
+::::
 
 ### Gender {.tabset}
 
-Variable `ppeducat` is defined as the highest level of education received. The results below are likely influenced by age since younger respondents are unlikely to have a Bachelor's degree or higher.
+Variable `ppgender` is the respondent's gender.
 
-#### CENIDENTITYa
+#### Centrality
 
-<div style= "float:right;position: relative; top: -80px;">
-
-```{r warning=FALSE}
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+White women were slightly more likely than White men to report family cultural origins were central to their identity. For Black Americans the relationship is reversed. Hispanic Women were more much more likely to report a central role for cultural origins than men.
+:::
+::: {}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_1 %>% 
   summarize_by_var("CENIDENTITYa", "ppgender") %>%
   mutate(
@@ -463,16 +472,17 @@ pew_dat_1 %>%
   facet_wrap(~simple_eth, nrow = 1) +
   ggtitle("Centrality of Origins Varies Little with Gender")
 ```
+:::
+::::
 
-</div>
+#### Familiarity
 
-White women were slightly more likely than White men to report family cultural origins were central to their identity. For Black Americans the relationship is reversed. Hispanic Women were more much more likely to report a central role for cultural origins than men.
-
-#### CENIDENTITYb
-
-<div style= "float:right;position: relative; top: -80px;">
-
-```{r warning=FALSE}
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Familiarity with family origins is about equal between genders of all three groups.
+:::
+::: {}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_1 %>% 
   summarize_by_var("CENIDENTITYb", "ppgender") %>%
   mutate(
@@ -483,16 +493,17 @@ pew_dat_1 %>%
   facet_wrap(~simple_eth, nrow = 1) +
   ggtitle("Familiarity with Origins Unrelated with Gender")
 ```
+:::
+::::
 
-</div>
+#### Connectedness
 
-Familiarity with family origins is about equal between genders of all three groups.
-
-#### CENIDENTITYc
-
-<div style= "float:right;position: relative; top: -80px;">
-
-```{r warning=FALSE}
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Connection to family origins does not appear to be related to gender for any race/ethnicity.
+:::
+::: {}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_1 %>% 
   summarize_by_var("CENIDENTITYc", "ppgender") %>%
   mutate(
@@ -503,20 +514,14 @@ pew_dat_1 %>%
   facet_wrap(~simple_eth, nrow = 1) +
   ggtitle("Connection with Origins Varies Little with Gender")
 ```
-
-</div>
-
-Connection to family origins does not appear to be related to gender for any race/ethnicity.
+:::
+::::
 
 ### Geography {.tabset}
 
-Variable `ppeducat` is defined as the highest level of education received. The results below are likely influenced by age since younger respondents are unlikely to have a Bachelor's degree or higher.
+Variables `ppstaten`, `ppreg9`, and `ppreg4` are geographic indicators of the respondent's residence.
 
-#### CENIDENTITYa
-
-<div style= "float:right;position: relative; top: -80px;">
-
-```{r warning=FALSE}
+```{r echo=FALSE}
 us_states <- map_data("state")
 
 lu_state <- tibble(st = state.abb, region = str_to_lower(state.name))
@@ -594,66 +599,51 @@ plot_geo <- function(dat, metric) {
       plot.caption = element_text(hjust = 0)
     )
 }
+```
 
+
+#### Centrality
+
+Americans on the coasts were more likely to report family cultural origins were central to their identity.
+
+```{r warning=FALSE, echo=FALSE}
 pew_dat_reg9 %>% 
   plot_geo(ppreg9_CENIDENTITYa_Central_pct) +
   labs(title = "% Saying Origin is Central to Their Identity")
 ```
 
-</div>
+#### Familiarity
 
-Americans on the coasts were more likely to report family cultural origins were central to their identity.
-
-#### CENIDENTITYb
-
-<div style= "float:right;position: relative; top: -80px;">
-
-```{r warning=FALSE}
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Familiarity with family origins is more common in the interior rather than the coasts.
+:::
+::: {}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_reg9 %>% 
   plot_geo(ppreg9_CENIDENTITYb_Familiar_pct) +
   labs(title = "% Saying They are Familiar with their Origins")
 ```
+:::
+::::
 
-</div>
+#### Connectedness
 
-Familiarity with family origins is more common in the interior rather than the coasts.
-
-#### CENIDENTITYc
-
-<div style= "float:right;position: relative; top: -80px;">
-
-```{r warning=FALSE}
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Connection to family origins is highest in the Mountain states for Black Americans, and the Atlantic states for Hispanic Americans.
+:::
+::: {}
+```{r fig.height=3.5, warning=FALSE, echo=FALSE}
 pew_dat_reg9 %>% 
   plot_geo(ppreg9_CENIDENTITYc_Connected_pct) +
   labs(title = "% Saying They Feel a Strong Connection with the Cultural Origin of Their Family")
 ```
+:::
+::::
 
-</div>
-
-Connection to family origins is highest in the Mountain states for Black Americans, and the Atlantic states for Hispanic Americans.
-
-# Survey Object
-
-Set up a survey object using the **survey** package.
-
-```{r fig.height=3.0, fig.width=3.5, warning=FALSE}
-pew_survey <- svydesign(
-  ids = ~1,
-  weights = ~ weight,
-  data = pew_dat_1
-)
-
-svytable(~simple_eth + CENIDENTITYb, pew_survey) %>%
-  as_tibble() %>% 
-  pivot_wider(names_from = CENIDENTITYb, values_from = n) %>%
-  adorn_percentages()
-```
+# Save Data
 
 ```{r}
-# x <- svyglm(CENIDENTITYb~simple_eth, family=quasibinomial, design = pew_survey, na.action = na.omit) 
-# x %>% broom::tidy(exponentiate = TRUE)
-# 
-# x <- svyby(~CENIDENTITYb, ~simple_eth, pew_survey, svymean, covmat = TRUE)
-# vcov(x)
-# svycontrast(x, c(-1, 1))
+saveRDS(pew_dat_1, "../data/1_get_data.rds")
 ```
