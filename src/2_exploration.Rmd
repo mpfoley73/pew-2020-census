@@ -1,0 +1,640 @@
+---
+title: "Ethnicity and Identity"
+subtitle: "Exploration"
+author: "Michael Foley"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    css: "style.css"
+    theme: flatly
+    toc: true
+    toc_float: true
+    highlight: haddock
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(survey)
+library(janitor)
+```
+
+```{r data}
+# Get data from prior step
+pew_dat <- readRDS("../data/1_data_mgmt.rds")
+```
+
+
+[2020 Census survey #1](https://www.pewresearch.org/social-trends/dataset/2020-census-survey-1/) asked three yes/no questions (`central`, `familiar`, and `connection`) related to how central the respondent's cultural origin is to their self-identity. This section reproduces the survey results reported in Pew's 5/14/2021 report, [Black and Hispanic Americans See Their Origins as Central to Who They Are, Less So for White Adults](https://www.pewresearch.org/social-trends/2021/05/14/black-and-hispanic-americans-see-their-origins-as-central-to-who-they-are-less-so-for-white-adults/) and explores relationships to other respondent features: age, gender, education, state of residence, and political ideology.
+
+```{r echo=FALSE}
+summarize_metric <- function(dat, metric_var) {
+  metric_levels <- dat %>% pull(!!ensym(metric_var)) %>% levels()
+  detail <- dat %>%
+    group_by(origins, metric_var = !!ensym(metric_var)) %>%
+    summarize(.groups = "drop_last", n = sum(weight)) %>%
+    mutate(pct = n / sum(n))
+  overall <- dat %>%
+    group_by(origins = "All", metric_var = !!ensym(metric_var)) %>%
+    summarize(.groups = "drop_last", n = sum(weight)) %>%
+    mutate(pct = n / sum(n))
+  blanks_1 <- dat %>%
+    count(origins = "", metric_var = !!ensym(metric_var)) %>%
+    mutate(pct = NA_real_)
+  blanks_2 <- dat %>%
+    count(origins = " ", metric_var = !!ensym(metric_var)) %>%
+    mutate(pct = NA_real_)
+  bind_rows(detail, overall, blanks_1, blanks_2) %>%
+    mutate(
+      origins = factor(origins),
+      origins = fct_relevel(origins, "", "All", " "),
+      pct_val = pct * if_else(metric_var == metric_levels[2], +1, -1)
+    )  %>%
+    ungroup()
+}
+
+plot_summary_by_var <- function(dat) {
+  metric_levels <- dat %>% pull(metric_var) %>% levels()
+  metric_fill <- c("#ddbea9", "#b7b7a4", "#FFFFFF")
+  names(metric_fill) <- metric_levels
+  dat %>%
+    filter(metric_var != "Refused" & origins != "Other") %>%
+    # mutate(metric_var = fct_drop(metric_var)) %>%
+    ggplot(aes(x = fct_rev(factor_var), fill = metric_var)) +
+    geom_col(aes(y = pct_val), width = 0.75) +
+    geom_text(aes(y = pct_val / 2, 
+                  label = scales::percent(pct, accuracy = 1)), 
+              size = 3.25, hjust = +0.5, vjust = 0.30) +
+    coord_flip() +
+    scale_y_continuous(limits = c(-.91, .91), labels = NULL) +
+    geom_hline(yintercept = 0, color = "gray60") +
+    geom_vline(xintercept = " ", linetype = 2, color = "gray60") +
+    labs(
+      x = NULL, y = NULL,
+      caption = stringr::str_wrap(paste0(
+        "Source: Survey of U.S. adults conducted Jan. 3-13, 2020.",
+        "`Black and Hispanic Americans See Their Origins as Central to Who ",
+        "They Are, Less So for White Adults'."),
+        width = 90),
+      subtitle = "% saying they are..."
+    ) +
+    annotate("text", x = "", y = -.5, label = stringr::str_wrap(metric_levels[1], 12), 
+             size = 2.5, color = "#cb997e", fontface = "bold", hjust = .5) +
+    annotate("text", x = "", y = +.5, label = stringr::str_wrap(metric_levels[2], 12), 
+             size = 2.5, color = "#6b705c", fontface = "bold", hjust = .5) +
+    scale_fill_manual(values = metric_fill) +
+    theme_light() +
+    theme(
+      panel.grid = element_blank(),
+      legend.position = "none",
+      axis.ticks = element_blank(),
+      plot.caption = element_text(color = "gray60", size = 8.5, hjust = 0),
+      plot.title = element_text(color = "gray20", size = 11.5, face = "bold"),
+      plot.subtitle = element_text(color = "gray40", size = 9.5, face = "italic")
+    )
+}
+```
+
+## Pew's Findings {.tabset}
+
+The main conclusion from Pew's report is that the importance of ancestral roots varies by race and ethnicity. The first, second, and fourth figures in the report are based on three questions about the respondent's relationship to the cultural origin of their family. Question `central` asked how *central* their origins are to their identity; Question `familiar` asked how *familiar* they are with their origins; and `connection` asked how *connected* the respondent is with their origins. Each question began with the same prompt.
+
+>Here is a pair of statements about how you think about your origin (for example, German, Mexican, Jamaican, Chinese, etc.) Which statement comes closer to your view – even if neither is exactly right? 
+
+60% of respondents said they are *very familiar* with their origins. But only 46% said they feel a *strong connection* to their family’s cultural roots, and only 33%  said their origin is *central* to their identity.
+
+### Centrality
+
+<!-- The colons (::::, :::) create a style html within document -->
+:::: {style="display: grid; grid-template-columns: 1fr 2fr; grid-column-gap: 10px;"}
+
+::: {}
+><ul>
+<li> My origin is central to my identity</li>
+<li> My origin is not central to my identity</li>
+</ul>
+
+White adults were unlikely to regard their origins as central to their identity.
+:::
+
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_metric("central") %>%
+  mutate(factor_var = fct_relevel(origins, levels(pew_dat$origins), after = 3)) %>%
+  plot_summary_by_var() +
+  ggtitle(stringr::str_wrap("Few whites said their origin is central to their identity.", 80))
+```
+:::
+
+::::
+
+### Familiarity
+
+:::: {style="display: grid; grid-template-columns: 1fr 2fr; grid-column-gap: 10px;"}
+
+::: {}
+><ul>
+<li> I am very familiar with my origins</li>
+<li> I am not too familiar with my origins</li>
+</ul>
+
+Hispanic adults were more likely to be familiar with their origins than single-race Black or White adults.
+:::
+
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_metric("familiar") %>%
+  mutate(factor_var = fct_relevel(origins, levels(pew_dat$origins), after = 3)) %>%
+  plot_summary_by_var() +
+  ggtitle(stringr::str_wrap("Hispanic adults especially likely to be familiar with origins.", 80))
+```
+:::
+
+::::
+
+### Connectedness
+
+:::: {style="display: grid; grid-template-columns: 1fr 2fr; grid-column-gap: 10px;"}
+
+::: {}
+><ul>
+<li> I feel a strong connection with the cultural origin of my family</li>
+<li> I do not feel a strong connection with the cultural origin of my family</li>
+</ul>
+
+White adults were unlikely to feel a strong connection to their roots.
+
+:::
+
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_metric("connection") %>%
+  mutate(factor_var = fct_relevel(origins, levels(pew_dat$origins), after = 3)) %>%
+  plot_summary_by_var() +
+  ggtitle(stringr::str_wrap("Few Whites said they feel a strong connection to their roots.", 80))
+```
+:::
+
+::::
+
+## Relationship with Social and Demographic Factors
+
+The Ipsos survey captured other respondent features that can further segment the race/ethnicity differences: age, gender, education, geographic location, and political ideology.
+
+```{r echo=FALSE}
+summarize_by_var <- function(dat, metric_var, factor_var) {
+  metric_levels <- dat %>% pull(!!ensym(metric_var)) %>% levels()
+  detail <- dat %>%
+    group_by(origins, factor_var = !!ensym(factor_var), metric_var = !!ensym(metric_var)) %>%
+    summarize(.groups = "drop", n = sum(weight)) %>%
+    group_by(origins, factor_var) %>%
+    mutate(pct = n / sum(n))
+  overall <- dat %>%
+    group_by(origins, factor_var = "All", metric_var = !!ensym(metric_var)) %>%
+    summarize(.groups = "drop", n = sum(weight)) %>%
+    group_by(origins, factor_var) %>%
+    mutate(pct = n / sum(n))
+  blanks_1 <- dat %>%
+    count(origins, factor_var = "", metric_var = !!ensym(metric_var)) %>%
+    mutate(pct = NA_real_)
+  blanks_2 <- dat %>%
+    count(origins, factor_var = " ", metric_var = !!ensym(metric_var)) %>%
+    mutate(pct = NA_real_)
+  bind_rows(detail, overall, blanks_1, blanks_2) %>%
+    mutate(
+      factor_var = factor(factor_var),
+      factor_var = fct_relevel(factor_var, "", "All", " "),
+      metric_var = factor(metric_var),
+      metric_var = fct_relevel(metric_var, "Refused", after = Inf),
+      pct_val = pct * if_else(metric_var == metric_levels[2], +1, -1)
+    )  %>%
+    ungroup()
+}
+```
+
+### Age {.tabset}
+
+Variables `ppage`, `ppagecat` (7 levels) are the respondent's age.
+
+#### Centrality
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Cultural origins are not central to the identity of White Americans regardless of age (perhaps a mild positive relationship?). For Black Americans there is a bell shaped distribution. For Hispanic Americans, cultural origins are central to identity regardless of age (perhaps a mild negative relationship?).
+:::
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("central", "ppagecat") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$ppagecat), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$central), after = 0)
+  ) %>% 
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Centrality of Origins Unrelated to Age")
+```
+:::
+::::
+
+#### Familiarity
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Familiarity with family origins increases with age level for all three race/ethnicity groups. Black Americans over 75 years of age are a possible exception.
+:::
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("familiar", "ppagecat") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$ppagecat), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$familiar), after = 0)
+  ) %>%
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Familiarity with Origins Increases with Age")
+```
+:::
+::::
+
+#### Connectedness
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Connection to family origins does not appear to be related to age for any race/ethnicity.
+:::
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("connection", "ppagecat") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$ppagecat), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$connection), after = 0)
+  ) %>%
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Connection with Origins Unrelated to Age")
+```
+:::
+::::
+
+### Gender {.tabset}
+
+Variable `ppgender` is the respondent's gender.
+
+#### Centrality
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+White women were slightly more likely than White men to report family cultural origins were central to their identity. For Black Americans the relationship is reversed. Hispanic Women were more much more likely to report a central role for cultural origins than men.
+:::
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("central", "ppgender") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$ppgender), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$central), after = 0)
+  ) %>% 
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Centrality of Origins Varies Little with Gender")
+```
+:::
+::::
+
+#### Familiarity
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Familiarity with family origins is about equal between genders of all three groups.
+:::
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("familiar", "ppgender") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$ppgender), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$familiar), after = 0)
+  ) %>%
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Familiarity with Origins Unrelated with Gender")
+```
+:::
+::::
+
+#### Connectedness
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Connection to family origins does not appear to be related to gender for any race/ethnicity.
+:::
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("connection", "ppgender") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$ppgender), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$connection), after = 0)
+  ) %>%
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Connection with Origins Varies Little with Gender")
+```
+:::
+::::
+
+### Education {.tabset}
+
+Variable `ppeducat` is defined as the highest level of education received. The results below are likely influenced by age since younger respondents are unlikely to have a Bachelor's degree or higher.
+
+#### Centrality
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+
+::: {}
+There is an inverse relationship between level of education received and the importance of family origins for all three race/ethnicity groups. Black Americans with less than a high school degree are a possible exception.
+:::
+
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("central", "ppeducat") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$ppeducat), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$central), after = 0)
+  ) %>% 
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Centrality of Origins Diminishes with Education")
+```
+:::
+
+::::
+
+#### Familiarity
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+
+::: {}
+Familiarity with family origins increases with education level for all three race/ethnicity groups. Black Americans with less than a high school degree are a possible exception.
+:::
+
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("familiar", "ppeducat") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$ppeducat), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$familiar), after = 0)
+  ) %>%
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Familiarity with Origins Increases with Education")
+```
+:::
+
+::::
+
+#### Connectedness
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+
+::: {}
+A third of white Americans report a strong connection to family origins, a proportion that is not moderated by level of education. There is a mild positive association in connectedness for Black Americans, and a mild negative association with Hispanic Americans.
+:::
+
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("connection", "ppeducat") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$ppeducat), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$connection), after = 0)
+  ) %>%
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Connection with Origins Unrelated to Education")
+```
+:::
+
+::::
+
+### Geography {.tabset}
+
+Variables `ppstaten`, `ppreg9`, and `ppreg4` are geographic indicators of the respondent's residence.
+
+```{r echo=FALSE}
+us_states <- map_data("state")
+
+lu_state <- tibble(st = state.abb, region = str_to_lower(state.name))
+
+pew_dat_reg9 <- pew_dat %>% 
+  # one row per state
+  count(ppstaten, ppreg9, ppreg4) %>% select(-n) %>% 
+  # one row per state per ethnicity
+  full_join(
+    tibble(origins = levels(pew_dat$origins)), 
+    by = character()
+  ) %>% 
+  # now left join the actual data
+  left_join(pew_dat, by = c("ppstaten", "ppreg9", "ppreg4", "origins")) %>% 
+  replace_na(replace = list(weight = 0, 
+                            central = "Central",
+                            familiar = "Very familiar",
+                            connection = "Strong connection")) %>%
+  group_by(ppstaten, ppreg9, origins) %>%
+  summarize(
+    .groups = "drop", 
+    ppstaten_central_Central = sum(if_else(central == "Central", weight, 0)),
+    ppstaten_familiar_Familiar = sum(if_else(familiar == "Very familiar", weight, 0)),
+    ppstaten_connection_Connected = sum(if_else(connection == "Strong connection", weight, 0)),
+    ppstaten_wt = sum(weight)
+  ) %>%
+  ungroup() %>%
+  group_by(ppreg9, origins) %>%
+  mutate(
+    ppreg9_central_Central = sum(ppstaten_central_Central),
+    ppreg9_familiar_Familiar = sum(ppstaten_familiar_Familiar),
+    ppreg9_connection_Connected = sum(ppstaten_connection_Connected),
+    ppreg9_wt = sum(ppstaten_wt)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    ppstaten_central_Central_pct = ppstaten_central_Central / ppstaten_wt,
+    ppstaten_familiar_Familiar_pct = ppstaten_familiar_Familiar / ppstaten_wt,
+    ppstaten_connection_Connected_pct = ppstaten_connection_Connected / ppstaten_wt,
+    ppreg9_central_Central_pct = ppreg9_central_Central / ppreg9_wt,
+    ppreg9_familiar_Familiar_pct = ppreg9_familiar_Familiar / ppreg9_wt,
+    ppreg9_connection_Connected_pct = ppreg9_connection_Connected / ppreg9_wt
+  )
+
+plot_geo <- function(dat, metric) {
+  dat %>%
+    inner_join(lu_state, by = c("ppstaten" = "st")) %>%
+    inner_join(us_states, by = "region") %>%
+    filter(origins != "Other") %>%
+    ggplot(aes(x = long, y = lat, group = group, fill = !!ensym(metric))) +
+    geom_polygon() +
+    coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+    scale_fill_continuous(labels = scales::percent_format(accuracy = 1)) +
+    facet_wrap(facets = vars(origins), nrow = 2) +
+    labs(
+      fill = NULL,
+      caption = stringr::str_wrap(paste0(
+        "Source: Survey of U.S. adults conducted Jan. 3-13, 2020.",
+        "`Black and Hispanic Americans See Their Origins as Central to Who They Area, ",
+        "Less So for White Adults'."),
+        width = 100)
+    ) +
+    theme(
+      axis.line = element_blank(),
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+      panel.grid = element_blank(),
+      legend.position = "right",
+      plot.caption = element_text(hjust = 0)
+    )
+}
+```
+
+
+#### Centrality
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Americans on the coasts were more likely to report family cultural origins were central to their identity.
+:::
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat_reg9 %>% 
+  plot_geo(ppreg9_central_Central_pct) +
+  labs(title = "% Saying Origin is Central to Their Identity")
+```
+:::
+::::
+
+#### Familiarity
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Familiarity with family origins is more common in the interior rather than the coasts.
+:::
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat_reg9 %>% 
+  plot_geo(ppreg9_familiar_Familiar_pct) +
+  labs(title = "% Saying They are Familiar with their Origins")
+```
+:::
+::::
+
+#### Connectedness
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+::: {}
+Connection to family origins is highest in the Mountain states for Black Americans, and the Atlantic states for Hispanic Americans.
+:::
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat_reg9 %>% 
+  plot_geo(ppreg9_connection_Connected_pct) +
+  labs(title = "% Saying They Feel a Strong Connection with the Cultural Origin of Their Family")
+```
+:::
+::::
+
+### Political Ideology {.tabset}
+
+Variable `IDEO` is the resondent's political ideology.
+
+#### Centrality
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+
+::: {}
+A more conservative ideology was associated with increased centrality for whites and blacks, but not so much for  Hispanics. 
+:::
+
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("central", "IDEO") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$IDEO), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$central), after = 0)
+  ) %>% 
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Conservative ideology associated with Centrality")
+```
+:::
+
+::::
+
+#### Familiarity
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+
+::: {}
+Familiarity with family origins was unrelated to political ideology.
+:::
+
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("familiar", "IDEO") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$IDEO), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$familiar), after = 0)
+  ) %>% 
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Familiarity with Origins Unrelated to Ideology")
+```
+:::
+
+::::
+
+#### Connectedness
+
+:::: {style="display: grid; grid-template-columns: 1fr 3fr; grid-column-gap: 10px;"}
+
+::: {}
+Connection is family origins was not related to political ideology.
+:::
+
+::: {}
+```{r warning=FALSE, echo=FALSE}
+pew_dat %>% 
+  summarize_by_var("connection", "IDEO") %>%
+  mutate(
+    factor_var = fct_relevel(factor_var, levels(pew_dat$IDEO), after = Inf),
+    metric_var = fct_relevel(metric_var, levels(pew_dat$connection), after = 0)
+  ) %>% 
+  plot_summary_by_var() +
+  facet_wrap(~origins, nrow = 1) +
+  ggtitle("Connection with Origins Unrelated to Ideology")
+```
+:::
+
+::::
+
+## Save Data
+
+save the refined functions and custom data for subsequent steps.
+
+```{r}
+save(lu_state, pew_dat_reg9, us_states, plot_geo, plot_summary_by_var, 
+     summarize_by_var, summarize_metric, file = "../data/2_exploration.RData")
+```

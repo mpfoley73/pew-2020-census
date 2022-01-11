@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Michael Foley" />
+
+<meta name="date" content="2022-01-04" />
+
+<title>Ethnicity and Identity</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; } /* Alert */
+code span.an { color: #008000; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #0000ff; } /* ControlFlow */
+code span.ch { color: #008080; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008000; } /* Comment */
+code span.cv { color: #008000; } /* CommentVar */
+code span.do { color: #008000; } /* Documentation */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.im { } /* Import */
+code span.in { color: #008000; } /* Information */
+code span.kw { color: #0000ff; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #ff4000; } /* Other */
+code span.pp { color: #ff4000; } /* Preprocessor */
+code span.sc { color: #008080; } /* SpecialChar */
+code span.ss { color: #008080; } /* SpecialString */
+code span.st { color: #008080; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #008080; } /* VerbatimString */
+code span.wa { color: #008000; font-weight: bold; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Ethnicity and Identity</h1>
+<h3 class="subtitle">Data Management</h3>
+<h4 class="author">Michael Foley</h4>
+<h4 class="date">2022-01-04</h4>
+
+</div>
+
+
+<p>Ipsos Public Affairs (Ipsos) conducted a survey on behalf of Pew Research from Jan 3-13, 2020 related to knowledge and attitudes about the 2020 census. The target population was non-institutionalized adults age 18 and older residing in the United States. The survey was conducted in part to explore the impact of a change in questions related to race and ethnicity.</p>
+<p>This project uses other features in the data to further explore the importance of racial/ethnic origins to self-identification. I estimate the relationship between measures of importance and five respondent features: age, gender, education, state of residence, and political ideology.</p>
+<div id="data-set" class="section level2">
+<h2>Data Set</h2>
+<p>The <a href="https://www.pewresearch.org/social-trends/dataset/2020-census-survey-1/">2020 Census survey #1</a> data set is available for download at the PEW Research web site. The link is to the project page. To navigate to this survey from the <a href="https://www.pewresearch.org/">Pew Research Center</a> home page, click <a href="https://www.pewresearch.org/tools-and-resources/">TOOLS &amp; RESOURCES</a>. In the Dataset Downloads section, select <a href="https://www.pewresearch.org/social-trends/datasets/">Social &amp; Demographic Trends</a> from the pull-down selection box. You must register for a free account to continue. Scroll down or search for <a href="https://www.pewresearch.org/social-trends/dataset/2020-census-survey-1/">2020 Census survey #1</a>.</p>
+<p>I unzipped the file to my project data directory. <strong>Jan20 Census_cleaned dataset.sav</strong> is an SPSS data file. The <a href="https://github.com/mpfoley73/pew-2020-census/blob/main/data/Jan20%20Census_methodology.pdf">Jan20 Census_methodology.pdf</a> file contains the essential data documentation.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r fold-show"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pew_dat_0 <span class="ot">&lt;-</span> foreign<span class="sc">::</span><span class="fu">read.spss</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;../data/Jan20 Census_cleaned dataset.sav&quot;</span>, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">to.data.frame =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(pew_dat_0)</span></code></pre></div>
+<pre><code>## [1] 3535  156</code></pre>
+<p>The data set consists of 156 variables collected from 3,535 participants. Only a fraction of the columns are of interest for this analysis.</p>
+</div>
+<div id="data-engineering" class="section level2">
+<h2>Data Engineering</h2>
+<p>The survey asked all respondents,</p>
+<blockquote>
+<p>The next two questions are the exact wording for how the 2020 census will ask about Hispanic origin and race. We’d like to know what your answer would be.</p>
+</blockquote>
+<p>The first of the two questions, recorded in variables <code>CENHISPAN2020_[1,5]</code> was</p>
+<blockquote>
+<p>Are you of Hispanic, Latino, or Spanish origin?</p>
+<ol>
+<li>
+No, not of Hispanic, Latino, or Spanish origin <code>CENHISPAN2020_1</code>
+</li>
+<li>
+Yes, Mexican, Mexican American, Chicano <code>CENHISPAN2020_2</code>
+</li>
+<li>
+Yes, Puerto Rican <code>CENHISPAN2020_3</code>
+</li>
+<li>
+Yes, Cuban <code>CENHISPAN2020_4</code>
+</li>
+<li>
+Yes, another Hispanic, Latino, or Spanish origin <code>CENHISPAN2020_5</code><br> Enter, for example, Salvadoran, Dominican, Colombian, Guatemalan, Spaniard, Ecuadorian, etc.
+</li>
+</ol>
+</blockquote>
+<p>The responses were collected using check boxes, permitting multiple selections. I will simplify the information to just <code>hispanic</code> (Yes | No) using variable <code>CENHISPAN2020_1</code>. If the respondent selected <code>CENHISPAN2020_1</code>, the survey recorded it as “Yes”, meaning “No, not Hispanic”, so I need to reverse the labeling.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pew_dat_1 <span class="ot">&lt;-</span> pew_dat_0 <span class="sc">%&gt;%</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hispanic =</span> <span class="fu">factor</span>(<span class="fu">case_when</span>(CENHISPAN2020_1 <span class="sc">==</span> <span class="st">&quot;No&quot;</span> <span class="sc">~</span> <span class="st">&quot;Yes&quot;</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                                     CENHISPAN2020_1 <span class="sc">==</span> <span class="st">&quot;Yes&quot;</span> <span class="sc">~</span> <span class="st">&quot;No&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                                     <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">as.character</span>(CENHISPAN2020_1)),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;No&quot;</span>, <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;Refused&quot;</span>)))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>pew_dat_1 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(hispanic)</span></code></pre></div>
+<pre><code>##  hispanic    n    percent
+##        No 2660 0.75247525
+##       Yes  814 0.23026874
+##   Refused   61 0.01725601</code></pre>
+<p>The second of the two questions, recorded in variables <code>CENRACE2020_[1,15]</code> was</p>
+<blockquote>
+What is your race? <br> [Select one or more boxes <strong>AND</strong> enter origins. For this survey, Hispanic origins are not races.]
+<ol>
+<li>
+White<br> Enter, for example, German, Irish, English, Italian, Lebanese, Egyptian, etc.
+</li>
+<li>
+Black or African American<br> Enter, for example, African American, Jamaican, Haitian, Nigerian, Ethiopian, Somali, etc.
+</li>
+<li>
+American Indian or Alaska Native<br> Enter name of enrolled or principal tribe(s), for example, Navajo Nation, Blackfeet Tribe, Mayan, Aztec, Native Village of Barrow Inupiat Traditional Government, Nome Eskimo Community, etc.
+</li>
+<li>
+Chinese
+</li>
+<li>
+Filipino
+</li>
+<li>
+Asian Indian
+</li>
+<li>
+Vietnamese
+</li>
+<li>
+Korean
+</li>
+<li>
+Japanese
+</li>
+<li>
+Other Asian<br> Enter, for example, Pakistani, Cambodian, Hmong, etc.
+</li>
+<li>
+Native Hawaiian
+</li>
+<li>
+Samoan
+</li>
+<li>
+Chamorro
+</li>
+<li>
+Other Pacific Islander<br> Enter, for example, Tongan, Fijian, Marshallese, etc.
+</li>
+<li>
+Some other race<br> Enter race or origin.
+</li>
+</ol>
+</blockquote>
+<p>Pew notes in the figure captions to their summary article <a href="https://www.pewresearch.org/social-trends/2021/05/14/black-and-hispanic-americans-see-their-origins-as-central-to-who-they-are-less-so-for-white-adults/">Black and Hispanic Americans See Their Origins as Central to Who They Are, Less So for White Adults</a> that</p>
+<blockquote>
+<p>White and Black adults include those who report being only one race and are not Hispanic. Hispanics are of any race. Share of respondents who didn’t offer an answer not shown.</p>
+</blockquote>
+<p>The <a href="https://github.com/mpfoley73/pew-2020-census/blob/main/data/Jan20%20Census_readme.txt">Jan20 Census_readme.txt</a> file included in the data zip file explains that field <code>racnum</code> is the number of races selected in <code>CENRACED2020_[1..15]</code>. I’ll follow their lead.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pew_dat_2 <span class="ot">&lt;-</span> pew_dat_1 <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">origins =</span> <span class="fu">factor</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">case_when</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        hispanic <span class="sc">==</span> <span class="st">&quot;Yes&quot;</span> <span class="sc">~</span> <span class="st">&quot;Hispanic&quot;</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        racnum <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> CENRACE2020_1 <span class="sc">==</span> <span class="st">&quot;Yes&quot;</span> <span class="sc">~</span> <span class="st">&quot;White&quot;</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        racnum <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> CENRACE2020_2 <span class="sc">==</span> <span class="st">&quot;Yes&quot;</span> <span class="sc">~</span> <span class="st">&quot;Black&quot;</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;Other&quot;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;White&quot;</span>, <span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>, <span class="st">&quot;Other&quot;</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>pew_dat_2 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(origins) </span></code></pre></div>
+<pre><code>##   origins    n    percent
+##     White 2088 0.59066478
+##     Black  275 0.07779349
+##  Hispanic  814 0.23026874
+##     Other  358 0.10127298</code></pre>
+<p>The survey asked respondents three questions related to how they thought about their origins. Each had the same lead-in.</p>
+<blockquote>
+<p>Here is a pair of statements about how you think about your origin (for example, German, Mexican, Jamaican, Chinese, etc.) Which statement comes closer to your view – even if neither is exactly right?</p>
+</blockquote>
+<code>CENIDENTITYa</code>
+<ul>
+<li>
+My origin is central to my identity
+</li>
+<li>
+My origin is not central to my identity
+</li>
+</ul>
+<code>CENIDENTYb</code>
+<ul>
+<li>
+I am very familiar with my origins
+</li>
+<li>
+I am not too familiar with my origins
+</li>
+</ul>
+<code>CENIDENTYc</code>
+<ul>
+<li>
+I feel a strong connection with the cultural origin of my family
+</li>
+<li>
+I do not feel a strong connection with the cultural origin of my family
+</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pew_dat_3 <span class="ot">&lt;-</span> pew_dat_2 <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">central =</span> <span class="fu">factor</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      CENIDENTITYa, </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;My origin is not central to my identity&quot;</span>, </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;My origin is central to my identity&quot;</span>, </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;Refused&quot;</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Not central&quot;</span>, <span class="st">&quot;Central&quot;</span>, <span class="st">&quot;Refused&quot;</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">familiar =</span> <span class="fu">factor</span>(</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>      CENIDENTITYb, </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;I am not too familiar with my origins&quot;</span>, </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;I am very familiar with my origins&quot;</span>, </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;Refused&quot;</span>),</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Not too familiar&quot;</span>, <span class="st">&quot;Very familiar&quot;</span>, <span class="st">&quot;Refused&quot;</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">connection =</span> <span class="fu">factor</span>(</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>      CENIDENTITYc, </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;I do not feel a strong connection with the cultural origin of my family&quot;</span>, </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;I feel a strong connection with the cultural origin of my family&quot;</span>, </span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;Refused&quot;</span>),</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Not a strong connection&quot;</span>, <span class="st">&quot;Strong connection&quot;</span>, <span class="st">&quot;Refused&quot;</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>pew_dat_3 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(central)</span></code></pre></div>
+<pre><code>##      central    n    percent
+##  Not central 2204 0.62347949
+##      Central 1199 0.33917963
+##      Refused  132 0.03734088</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pew_dat_3 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(familiar)</span></code></pre></div>
+<pre><code>##          familiar    n    percent
+##  Not too familiar 1188 0.33606789
+##     Very familiar 2246 0.63536068
+##           Refused  101 0.02857143</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pew_dat_3 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(connection)</span></code></pre></div>
+<pre><code>##               connection    n    percent
+##  Not a strong connection 1726 0.48826025
+##        Strong connection 1714 0.48486563
+##                  Refused   95 0.02687412</code></pre>
+<p>I want to estimate the relationship between importance or origins and other features available in the survey. There are five interesting features: age, gender, education, state of residence, and political ideology.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="ot">&lt;-</span> pew_dat_3 <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">IDEO =</span> <span class="fu">factor</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      IDEO, </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Very conservative&quot;</span>, <span class="st">&quot;Conservative&quot;</span>, <span class="st">&quot;Moderate&quot;</span>, <span class="st">&quot;Liberal&quot;</span>, <span class="st">&quot;Very liberal&quot;</span>, <span class="st">&quot;Refused&quot;</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">ordered =</span> <span class="cn">TRUE</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppagecat =</span> <span class="fu">factor</span>(ppagecat, <span class="at">ordered =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># There&#39;s a level for &quot;under 18&quot;, but everyone is &gt;18</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppagecat =</span> <span class="fu">fct_drop</span>(ppagecat),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppeducat =</span> <span class="fu">factor</span>(ppeducat, <span class="at">ordered =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">CASEID =</span> <span class="fu">as.character</span>(CASEID)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    CASEID, weight, origins, central, familiar, connection,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    ppage, ppagecat, ppgender, ppeducat, ppstaten, ppreg4, ppreg9, IDEO</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">pull</span>(ppage) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   18.00   37.00   53.00   50.99   64.00   94.00</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(ppagecat)</span></code></pre></div>
+<pre><code>##  ppagecat   n    percent
+##     18-24 189 0.05346535
+##     25-34 544 0.15388967
+##     35-44 605 0.17114569
+##     45-54 553 0.15643564
+##     55-64 779 0.22036775
+##     65-74 596 0.16859972
+##       75+ 269 0.07609618</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(ppgender)</span></code></pre></div>
+<pre><code>##  ppgender    n  percent
+##      Male 1754 0.496181
+##    Female 1781 0.503819</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(ppeducat)</span></code></pre></div>
+<pre><code>##                     ppeducat    n    percent
+##        Less than high school  317 0.08967468
+##                  High school 1004 0.28401697
+##                 Some college  966 0.27326733
+##  Bachelor&#39;s degree or higher 1248 0.35304102</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">count</span>(ppreg4, ppreg9, ppstaten)</span></code></pre></div>
+<pre><code>##       ppreg4             ppreg9 ppstaten   n
+## 1  Northeast        New England       ME  11
+## 2  Northeast        New England       NH  20
+## 3  Northeast        New England       VT   6
+## 4  Northeast        New England       MA  56
+## 5  Northeast        New England       RI  12
+## 6  Northeast        New England       CT  48
+## 7  Northeast       Mid-Atlantic       NY 190
+## 8  Northeast       Mid-Atlantic       NJ 123
+## 9  Northeast       Mid-Atlantic       PA 151
+## 10   Midwest East-North Central       OH 125
+## 11   Midwest East-North Central       IN  56
+## 12   Midwest East-North Central       IL 130
+## 13   Midwest East-North Central       MI 106
+## 14   Midwest East-North Central       WI  86
+## 15   Midwest West-North Central       MN  60
+## 16   Midwest West-North Central       IA  33
+## 17   Midwest West-North Central       MO  48
+## 18   Midwest West-North Central       ND   4
+## 19   Midwest West-North Central       SD  10
+## 20   Midwest West-North Central       NE  13
+## 21   Midwest West-North Central       KS  22
+## 22     South     South Atlantic       DE  12
+## 23     South     South Atlantic       MD  60
+## 24     South     South Atlantic       DC  10
+## 25     South     South Atlantic       VA 118
+## 26     South     South Atlantic       WV  11
+## 27     South     South Atlantic       NC 101
+## 28     South     South Atlantic       SC  46
+## 29     South     South Atlantic       GA  86
+## 30     South     South Atlantic       FL 253
+## 31     South East-South Central       KY  40
+## 32     South East-South Central       TN  64
+## 33     South East-South Central       AL  42
+## 34     South East-South Central       MS  27
+## 35     South West-South Central       AR  27
+## 36     South West-South Central       LA  47
+## 37     South West-South Central       OK  37
+## 38     South West-South Central       TX 320
+## 39      West           Mountain       MT  12
+## 40      West           Mountain       ID  13
+## 41      West           Mountain       WY   3
+## 42      West           Mountain       CO  44
+## 43      West           Mountain       NM  33
+## 44      West           Mountain       AZ  83
+## 45      West           Mountain       UT  37
+## 46      West           Mountain       NV  28
+## 47      West            Pacific       WA  98
+## 48      West            Pacific       OR  52
+## 49      West            Pacific       CA 503
+## 50      West            Pacific       AK   3
+## 51      West            Pacific       HI  15</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(IDEO)</span></code></pre></div>
+<pre><code>##               IDEO    n    percent
+##  Very conservative  319 0.09024045
+##       Conservative  866 0.24497878
+##           Moderate 1512 0.42772277
+##            Liberal  563 0.15926450
+##       Very liberal  189 0.05346535
+##            Refused   86 0.02432815</code></pre>
+<p>One final look at the refined data set. <code>CASEID</code> is a unique identifier for the weighted group, and <code>weight</code> is the response weight.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> skimr<span class="sc">::</span><span class="fu">skim</span>()</span></code></pre></div>
+<table>
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">Piped data</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">3535</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">14</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">1</td>
+</tr>
+<tr class="odd">
+<td align="left">factor</td>
+<td align="left">11</td>
+</tr>
+<tr class="even">
+<td align="left">numeric</td>
+<td align="left">2</td>
+</tr>
+<tr class="odd">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">CASEID</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">3535</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: factor</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="left">ordered</th>
+<th align="right">n_unique</th>
+<th align="left">top_counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">origins</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">FALSE</td>
+<td align="right">4</td>
+<td align="left">Whi: 2088, His: 814, Oth: 358, Bla: 275</td>
+</tr>
+<tr class="even">
+<td align="left">central</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">FALSE</td>
+<td align="right">3</td>
+<td align="left">Not: 2204, Cen: 1199, Ref: 132</td>
+</tr>
+<tr class="odd">
+<td align="left">familiar</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">FALSE</td>
+<td align="right">3</td>
+<td align="left">Ver: 2246, Not: 1188, Ref: 101</td>
+</tr>
+<tr class="even">
+<td align="left">connection</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">FALSE</td>
+<td align="right">3</td>
+<td align="left">Not: 1726, Str: 1714, Ref: 95</td>
+</tr>
+<tr class="odd">
+<td align="left">ppagecat</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">TRUE</td>
+<td align="right">7</td>
+<td align="left">55-: 779, 35-: 605, 65-: 596, 45-: 553</td>
+</tr>
+<tr class="even">
+<td align="left">ppgender</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">FALSE</td>
+<td align="right">2</td>
+<td align="left">Fem: 1781, Mal: 1754</td>
+</tr>
+<tr class="odd">
+<td align="left">ppeducat</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">TRUE</td>
+<td align="right">4</td>
+<td align="left">Bac: 1248, Hig: 1004, Som: 966, Les: 317</td>
+</tr>
+<tr class="even">
+<td align="left">ppstaten</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">FALSE</td>
+<td align="right">51</td>
+<td align="left">CA: 503, TX: 320, FL: 253, NY: 190</td>
+</tr>
+<tr class="odd">
+<td align="left">ppreg4</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">FALSE</td>
+<td align="right">4</td>
+<td align="left">Sou: 1301, Wes: 924, Mid: 693, Nor: 617</td>
+</tr>
+<tr class="even">
+<td align="left">ppreg9</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">FALSE</td>
+<td align="right">9</td>
+<td align="left">Sou: 697, Pac: 671, Eas: 503, Mid: 464</td>
+</tr>
+<tr class="odd">
+<td align="left">IDEO</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">TRUE</td>
+<td align="right">6</td>
+<td align="left">Mod: 1512, Con: 866, Lib: 563, Ver: 319</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">weight</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1.00</td>
+<td align="right">0.68</td>
+<td align="right">0.24</td>
+<td align="right">0.59</td>
+<td align="right">0.82</td>
+<td align="right">1.15</td>
+<td align="right">4.42</td>
+<td align="left">▇▂▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">ppage</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">50.99</td>
+<td align="right">16.87</td>
+<td align="right">18.00</td>
+<td align="right">37.00</td>
+<td align="right">53.00</td>
+<td align="right">64.00</td>
+<td align="right">94.00</td>
+<td align="left">▅▆▇▆▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="save-data" class="section level2">
+<h2>Save Data</h2>
+<p>save the refined data set to a file for subsequent steps.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(pew_dat_4, <span class="st">&quot;../data/1_data_mgmt.rds&quot;</span>)</span></code></pre></div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

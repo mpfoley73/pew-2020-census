@@ -1,0 +1,169 @@
+---
+title: "Ethnicity and Identity"
+subtitle: "Analysis"
+author: "Michael Foley"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    css: "style.css"
+    theme: flatly
+    toc: true
+    toc_float: true
+    highlight: haddock
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(scales)
+library(patchwork)
+library(janitor)
+library(kableExtra)
+library(questionr)
+library(survey)
+library(gtsummary)
+```
+
+```{r}
+pew_0 <- readRDS("../data/1_data_mgmt.rds")
+
+# Drop vars we won't need. 
+pew_1 <- pew_0 %>%
+  select(-c(CASEID, ppstaten, ppage, ppreg4))
+
+# Create a survey object. Survey objects properly handle response weights.
+svy <- svydesign(
+  ids = ~1,
+  weights = ~ weight,
+  data = pew_1
+)
+```
+
+## Methods
+
+```{r}
+adorn_stars <- function(estimate, p.value) {
+  stars = case_when(
+    p.value <= .001 ~ "***",
+    p.value <= .01  ~ "**",
+    p.value <= .05  ~ "*",
+    TRUE ~ ""
+  )
+  paste0(estimate, stars)
+}
+
+identity_cor <- expand_grid(
+  v1 = c("central", "familiar", "connection"),
+  v2 = c("central", "familiar", "connection")
+) %>%
+  # Remove upper right of matrix
+  .[-c(4, 7, 8), ] %>%
+  mutate(
+    test = map2(v1, v2, ~ weights::wtd.cor(as.numeric(pew_1[, .x]), 
+                                           as.numeric(pew_1[, .y]), 
+                                           weight = pew_1[, "weight"])),
+    estimate = map_dbl(test, ~.x["Y", "correlation"]),
+    p.value = map_dbl(test, ~.x["Y", "p.value"]),
+    est_star = map2_chr(number(estimate, .01), p.value, adorn_stars)
+  )
+```
+
+The survey collected demographic features, including race and ethnicity, age, gender, education attained, region of residence, and political ideology. Three two-level questions measured the importance of cultural origins in self-identity in terms of how familiar the respondent is with their origins, how central origins are to their identity, and how connected they feel to their origins. The three questions were moderately correlated.
+
+```{r}
+identity_cor %>%
+  pivot_wider(id_cols = v2, names_from = v1, values_from = est_star, values_fill = "") %>%
+  rename(` ` = v2) %>%
+  kbl(caption = "Response variable correlations") %>%
+  kable_paper(full_width = FALSE, position = "left") %>%
+  add_footnote("*p < .05, **p < .01, ***p < .001")
+```
+
+
+## Results
+
+Table 1 presents descriptive statistics for the survey items. 
+
+Descriptive Statistics
+
+```{r}
+svy %>% 
+  gtsummary::tbl_svysummary(
+    by = "origins",
+    label = list(origins ~ "Cultural Origin",
+                 central ~ "Origins Central to Identity",
+                 familiar ~ "Familiar with Origins",
+                 connection ~ "Connected to Origins",
+                 ppagecat ~ "Age",
+                 ppgender ~ "Gender",
+                 ppeducat ~ "Education",
+                 ppreg9 ~ "Region",
+                 IDEO ~ "Political Ideology")
+  ) %>%
+  gtsummary::modify_header(label ~ "**Variable**") %>%
+  gtsummary::modify_spanning_header(c("stat_1", "stat_2", "stat_3", "stat_4") ~ "**Cultural Origin**") %>%
+  gtsummary::add_p() %>%
+  gtsummary::modify_caption("Table 1. Survey Descriptive Statistics") %>%
+  gtsummary::bold_labels()
+```
+
+```{r}
+# https://bookdown.org/mpfoley1973/statistics/independent-samples-discrete.html
+# https://journals.aom.org/doi/pdf/10.5465/amj.2017.1497
+# https://www.pewresearch.org/social-trends/2021/05/14/black-and-hispanic-americans-see-their-origins-as-central-to-who-they-are-less-so-for-white-adults/
+# "Men were more likely to be primary breadwinners (82% of men vs. 55% of women 
+# reported contributing 81–100% of household earnings) and to have infant or 
+# school-age children (75% of men, 58% of women)."
+
+questionr::wtd.table(pew_1$origins, pew_1$ppgender, weights = pew_1$weight) %>%
+  chisq.test(correct = FALSE)
+
+# questionr::wtd.table(pew_1$origins, pew_1$ppgender, weights = pew_1$weight) %>% 
+#   # as.data.frame()
+#   as_tibble(.name_repair = c("check_unique", "unique", "universal", "minimal")) %>%
+#   adorn_percentages()
+
+pew_1 %>%
+  tabyl(origins, ppagecat) %>%
+  janitor::chisq.test(correct = FALSE)
+
+
+pew_1 %>% 
+  group_by(origins, familiar) %>%
+  summarise(.groups = "drop", n = sum(weight)) %>%
+  pivot_wider(names_from = origins, values_from = n) %>%
+  adorn_totals() %>%
+  adorn_percentages(denominator = "col")
+
+# age, gender, education, state of residence, and political ideology
+
+
+```
+
+```{r}
+pew_1 %>% filter(origins == "White" & ppagecat == "18-24") %>%
+  summarize(n = n(), weight = sum(weight))
+```
+
+
+Those who were familiar with their origins were far more likely to feel strong connections to their roots and see their origins as central to their identity, and the reverse was also true
+ 
+# Modeling
+
+```{r}
+# svyvar(~ central + familiar, svy)
+# 
+# svytable(~origins + familiar, svy) %>%
+#   as_tibble() %>% 
+#   pivot_wider(names_from = familiar, values_from = n) %>%
+#   adorn_percentages()
+# 
+svyglm(central ~ origins + ppagecat + ppgender,
+     design = svy,
+     family="binomial")
+```
+
+# Discussion
+

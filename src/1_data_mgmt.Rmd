@@ -1,0 +1,228 @@
+---
+title: "Ethnicity and Identity"
+subtitle: "Data Management"
+author: "Michael Foley"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    css: "style.css"
+    theme: flatly
+    toc: true
+    toc_float: true
+    highlight: haddock
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+
+library(tidyverse)
+library(janitor)
+library(sf)
+library(survey)
+```
+
+Ipsos Public Affairs (Ipsos) conducted a survey on behalf of Pew Research from Jan 3-13, 2020 related to knowledge and attitudes about the 2020 census. The target population was non-institutionalized adults age 18 and older residing in the United States. The survey was conducted in part to explore the impact of a change in questions related to race and ethnicity. 
+
+This project uses other features in the data to further explore the importance of racial/ethnic origins to self-identification. I estimate the relationship between measures of importance and five respondent features: age, gender, education, state of residence, and political ideology.
+
+## Data Set
+
+The [2020 Census survey #1](https://www.pewresearch.org/social-trends/dataset/2020-census-survey-1/) data set is available for download at the PEW Research web site. The link is to the project page. To navigate to this survey from the [Pew Research Center](https://www.pewresearch.org/) home page, click [TOOLS & RESOURCES](https://www.pewresearch.org/tools-and-resources/). In the Dataset Downloads section, select [Social & Demographic Trends](https://www.pewresearch.org/social-trends/datasets/) from the pull-down selection box. You must register for a free account to continue. Scroll down or search for [2020 Census survey #1](https://www.pewresearch.org/social-trends/dataset/2020-census-survey-1/). 
+
+I unzipped the file to my project data directory. **Jan20 Census_cleaned dataset.sav** is an SPSS data file. The [Jan20 Census_methodology.pdf](https://github.com/mpfoley73/pew-2020-census/blob/main/data/Jan20%20Census_methodology.pdf) file contains the essential data documentation.
+
+```{r warning=FALSE, message=FALSE, class.source = 'fold-show'}
+pew_dat_0 <- foreign::read.spss(
+  "../data/Jan20 Census_cleaned dataset.sav", 
+  to.data.frame = TRUE
+)
+
+dim(pew_dat_0)
+```
+
+The data set consists of 156 variables collected from 3,535 participants. Only a fraction of the columns are of interest for this analysis.
+
+## Data Engineering
+
+The survey asked all respondents,
+
+>The next two questions are the exact wording for how the 2020 census will ask about Hispanic origin and 
+race. We’d like to know what your answer would be.
+
+The first of the two questions, recorded in variables `CENHISPAN2020_[1,5]` was
+
+>Are you of Hispanic, Latino, or Spanish origin? 
+>
+><ol>
+><li> No, not of Hispanic, Latino, or Spanish origin `CENHISPAN2020_1`</li>
+><li> Yes, Mexican, Mexican American, Chicano `CENHISPAN2020_2`</li>
+><li> Yes, Puerto Rican `CENHISPAN2020_3`</li>
+><li> Yes, Cuban `CENHISPAN2020_4`</li>
+><li> Yes, another Hispanic, Latino, or Spanish origin `CENHISPAN2020_5`<br>
+>Enter, for example, Salvadoran, Dominican, Colombian, Guatemalan, Spaniard, Ecuadorian, etc.</li>
+></ol>
+
+The responses were collected using check boxes, permitting multiple selections. I will simplify the information to just `hispanic` (Yes | No) using variable `CENHISPAN2020_1`. If the respondent selected `CENHISPAN2020_1`, the survey recorded it as "Yes", meaning "No, not Hispanic", so I need to reverse the labeling.
+
+```{r}
+pew_dat_1 <- pew_dat_0 %>% 
+  mutate(hispanic = factor(case_when(CENHISPAN2020_1 == "No" ~ "Yes",
+                                     CENHISPAN2020_1 == "Yes" ~ "No",
+                                     TRUE ~ as.character(CENHISPAN2020_1)),
+                           levels = c("No", "Yes", "Refused")))
+
+pew_dat_1 %>% tabyl(hispanic)
+```
+
+The second of the two questions, recorded in variables `CENRACE2020_[1,15]` was
+
+> What is your race? <br>
+[Select one or more boxes **AND** enter origins. For this survey, Hispanic origins are not 
+races.]
+<ol>
+<li> White<br> 
+Enter, for example, German, Irish, English, Italian, Lebanese, Egyptian, etc.</li>
+<li> Black or African American<br>
+Enter, for example, African American, Jamaican, Haitian, Nigerian, Ethiopian, 
+Somali, etc.</li>
+<li> American Indian or Alaska Native<br>
+Enter name of enrolled or principal tribe(s), for example, Navajo Nation, 
+Blackfeet Tribe, Mayan, Aztec, Native Village of Barrow Inupiat Traditional 
+Government, Nome Eskimo Community, etc.</li>
+<li> Chinese</li>
+<li> Filipino</li>
+<li> Asian Indian</li>
+<li> Vietnamese</li>
+<li> Korean</li>
+<li> Japanese</li>
+<li> Other Asian<br>
+Enter, for example, Pakistani, Cambodian, Hmong, etc.</li>
+<li> Native Hawaiian</li>
+<li> Samoan</li>
+<li> Chamorro</li>
+<li> Other Pacific Islander<br>
+Enter, for example, Tongan, Fijian, Marshallese, etc.</li>
+<li> Some other race<br>
+Enter race or origin.</li>
+</ol>
+
+Pew notes in the figure captions to their summary article [Black and Hispanic Americans See Their Origins as Central to Who They Are, Less So for White Adults](https://www.pewresearch.org/social-trends/2021/05/14/black-and-hispanic-americans-see-their-origins-as-central-to-who-they-are-less-so-for-white-adults/) that 
+
+> White and Black adults include those who report being only one race and are not Hispanic. Hispanics are of any race. Share of respondents who didn't offer an answer not shown.
+
+The [Jan20 Census_readme.txt](https://github.com/mpfoley73/pew-2020-census/blob/main/data/Jan20%20Census_readme.txt) file included in the data zip file explains that field `racnum` is the number of races selected in `CENRACED2020_[1..15]`. I'll follow their lead.
+        
+```{r}
+pew_dat_2 <- pew_dat_1 %>%
+  mutate(
+    origins = factor(
+      case_when(
+        hispanic == "Yes" ~ "Hispanic",
+        racnum == 1 & CENRACE2020_1 == "Yes" ~ "White",
+        racnum == 1 & CENRACE2020_2 == "Yes" ~ "Black",
+        TRUE ~ "Other"
+      ),
+      levels = c("White", "Black", "Hispanic", "Other")
+    )
+  )
+pew_dat_2 %>% tabyl(origins) 
+```
+
+The survey asked respondents three questions related to how they thought about their origins. Each had the same lead-in.
+
+>Here is a pair of statements about how you think about your origin (for example, German, Mexican, Jamaican, Chinese, etc.) Which statement comes closer to your view – even if neither is exactly right? 
+
+`CENIDENTITYa`
+<ul>
+<li> My origin is central to my identity</li>
+<li> My origin is not central to my identity</li>
+</ul>
+
+`CENIDENTYb`
+<ul>
+<li> I am very familiar with my origins</li>
+<li> I am not too familiar with my origins</li>
+</ul>
+
+`CENIDENTYc`
+<ul>
+<li> I feel a strong connection with the cultural origin of my family</li>
+<li> I do not feel a strong connection with the cultural origin of my family</li>
+</ul>
+
+```{r}
+pew_dat_3 <- pew_dat_2 %>%
+  mutate(
+    central = factor(
+      CENIDENTITYa, 
+      levels = c("My origin is not central to my identity", 
+                 "My origin is central to my identity", 
+                 "Refused"),
+      labels = c("Not central", "Central", "Refused")
+    ),
+    familiar = factor(
+      CENIDENTITYb, 
+      levels = c("I am not too familiar with my origins", 
+                 "I am very familiar with my origins", 
+                 "Refused"),
+      labels = c("Not too familiar", "Very familiar", "Refused")
+    ),
+    connection = factor(
+      CENIDENTITYc, 
+      levels = c("I do not feel a strong connection with the cultural origin of my family", 
+                 "I feel a strong connection with the cultural origin of my family", 
+                 "Refused"),
+      labels = c("Not a strong connection", "Strong connection", "Refused")
+    )
+  )
+
+pew_dat_3 %>% tabyl(central)
+pew_dat_3 %>% tabyl(familiar)
+pew_dat_3 %>% tabyl(connection)
+```
+
+I want to estimate the relationship between importance or origins and other features available in the survey. There are five interesting features: age, gender, education, state of residence, and political ideology.
+
+```{r}
+pew_dat_4 <- pew_dat_3 %>%
+  mutate(
+    IDEO = factor(
+      IDEO, 
+      levels = c("Very conservative", "Conservative", "Moderate", "Liberal", "Very liberal", "Refused"),
+      ordered = TRUE
+    ),
+    ppagecat = factor(ppagecat, ordered = TRUE),
+    # There's a level for "under 18", but everyone is >18
+    ppagecat = fct_drop(ppagecat),
+    ppeducat = factor(ppeducat, ordered = TRUE),
+    CASEID = as.character(CASEID)
+  ) %>%
+  select(
+    CASEID, weight, origins, central, familiar, connection,
+    ppage, ppagecat, ppgender, ppeducat, ppstaten, ppreg4, ppreg9, IDEO
+  )
+
+pew_dat_4 %>% pull(ppage) %>% summary()
+pew_dat_4 %>% tabyl(ppagecat)
+pew_dat_4 %>% tabyl(ppgender)
+pew_dat_4 %>% tabyl(ppeducat)
+pew_dat_4 %>% count(ppreg4, ppreg9, ppstaten)
+pew_dat_4 %>% tabyl(IDEO)
+```
+
+One final look at the refined data set. `CASEID` is a unique identifier for the weighted group, and `weight` is the response weight.
+
+```{r}
+pew_dat_4 %>% skimr::skim()
+```
+
+## Save Data
+
+save the refined data set to a file for subsequent steps.
+
+```{r}
+saveRDS(pew_dat_4, "../data/1_data_mgmt.rds")
+```

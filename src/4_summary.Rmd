@@ -1,0 +1,38 @@
+---
+title: "Do Family Origins Vary in Importance?"
+author: "Michael Foley"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    css: "style.css"
+    theme: flatly
+    toc: true
+    toc_float: true
+    highlight: haddock
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(survey)
+library(janitor)
+```
+
+```{r data}
+# Get data from prior step
+pew_dat <- readRDS("../data/1_get_data.rds")
+```
+
+(Abstract)
+
+# introduction
+
+# methods
+
+# results
+
+# discussion
+
+# references
