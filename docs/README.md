@@ -5,7 +5,7 @@ Ipsos Public Affairs (Ipsos) conducted a survey on behalf of Pew Research from J
 
 ## Main Sections of Study
 
-* [Data Management](./1_get_data.html)
+* [Data Management](./1_data_mgmt.html)
 * [Data Exploration](./2_exploration.html)
 * [Analysis](./3_analysis.html)
 
