@@ -26,7 +26,6 @@ library(janitor)
 pew_dat <- readRDS("../data/1_data_mgmt.rds")
 ```
 
-
 [2020 Census survey #1](https://www.pewresearch.org/social-trends/dataset/2020-census-survey-1/) asked three yes/no questions (`central`, `familiar`, and `connection`) related to how central the respondent's cultural origin is to their self-identity. This section reproduces the survey results reported in Pew's 5/14/2021 report, [Black and Hispanic Americans See Their Origins as Central to Who They Are, Less So for White Adults](https://www.pewresearch.org/social-trends/2021/05/14/black-and-hispanic-americans-see-their-origins-as-central-to-who-they-are-less-so-for-white-adults/) and explores relationships to other respondent features: age, gender, education, state of residence, and political ideology.
 
 ```{r echo=FALSE}

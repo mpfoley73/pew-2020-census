@@ -11,7 +11,7 @@
 
 <meta name="author" content="Michael Foley" />
 
-<meta name="date" content="2022-01-04" />
+<meta name="date" content="2022-01-17" />
 
 <title>Ethnicity and Identity</title>
 
@@ -344,7 +344,7 @@ div.tocify {
 <h1 class="title toc-ignore">Ethnicity and Identity</h1>
 <h3 class="subtitle">Data Management</h3>
 <h4 class="author">Michael Foley</h4>
-<h4 class="date">2022-01-04</h4>
+<h4 class="date">2022-01-17</h4>
 
 </div>
 
@@ -549,25 +549,19 @@ I do not feel a strong connection with the cultural origin of my family
 ##        Strong connection 1714 0.48486563
 ##                  Refused   95 0.02687412</code></pre>
 <p>I want to estimate the relationship between importance or origins and other features available in the survey. There are five interesting features: age, gender, education, state of residence, and political ideology.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="ot">&lt;-</span> pew_dat_3 <span class="sc">%&gt;%</span></span>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="ot">&lt;-</span> pew_dat_3 <span class="sc">%&gt;%</span> </span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">IDEO =</span> <span class="fu">factor</span>(</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      IDEO, </span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Very conservative&quot;</span>, <span class="st">&quot;Conservative&quot;</span>, <span class="st">&quot;Moderate&quot;</span>, <span class="st">&quot;Liberal&quot;</span>, <span class="st">&quot;Very liberal&quot;</span>, <span class="st">&quot;Refused&quot;</span>),</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">ordered =</span> <span class="cn">TRUE</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppagecat =</span> <span class="fu">factor</span>(ppagecat, <span class="at">ordered =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># There&#39;s a level for &quot;under 18&quot;, but everyone is &gt;18</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppagecat =</span> <span class="fu">fct_drop</span>(ppagecat),</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppeducat =</span> <span class="fu">factor</span>(ppeducat, <span class="at">ordered =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">CASEID =</span> <span class="fu">as.character</span>(CASEID)</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    CASEID, weight, origins, central, familiar, connection,</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    ppage, ppagecat, ppgender, ppeducat, ppstaten, ppreg4, ppreg9, IDEO</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">pull</span>(ppage) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">IDEO =</span> <span class="fu">fct_relevel</span>(IDEO, <span class="fu">c</span>(<span class="st">&quot;Moderate&quot;</span>, <span class="st">&quot;Conservative&quot;</span>)),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># There&#39;s a level for &quot;under 18&quot;, but everyone is &gt;18</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ppagecat =</span> <span class="fu">fct_drop</span>(ppagecat),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">CASEID =</span> <span class="fu">as.character</span>(CASEID)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    CASEID, weight, origins, central, familiar, connection,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    ppage, ppagecat, ppgender, ppeducat, ppstaten, ppreg4, ppreg9, IDEO</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">pull</span>(ppage) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   18.00   37.00   53.00   50.99   64.00   94.00</code></pre>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(ppagecat)</span></code></pre></div>
@@ -644,9 +638,9 @@ I do not feel a strong connection with the cultural origin of my family
 ## 51      West            Pacific       HI  15</code></pre>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>pew_dat_4 <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(IDEO)</span></code></pre></div>
 <pre><code>##               IDEO    n    percent
-##  Very conservative  319 0.09024045
-##       Conservative  866 0.24497878
 ##           Moderate 1512 0.42772277
+##       Conservative  866 0.24497878
+##  Very conservative  319 0.09024045
 ##            Liberal  563 0.15926450
 ##       Very liberal  189 0.05346535
 ##            Refused   86 0.02432815</code></pre>
@@ -773,7 +767,7 @@ I do not feel a strong connection with the cultural origin of my family
 <td align="left">ppagecat</td>
 <td align="right">0</td>
 <td align="right">1</td>
-<td align="left">TRUE</td>
+<td align="left">FALSE</td>
 <td align="right">7</td>
 <td align="left">55-: 779, 35-: 605, 65-: 596, 45-: 553</td>
 </tr>
@@ -789,7 +783,7 @@ I do not feel a strong connection with the cultural origin of my family
 <td align="left">ppeducat</td>
 <td align="right">0</td>
 <td align="right">1</td>
-<td align="left">TRUE</td>
+<td align="left">FALSE</td>
 <td align="right">4</td>
 <td align="left">Bac: 1248, Hig: 1004, Som: 966, Les: 317</td>
 </tr>
@@ -821,7 +815,7 @@ I do not feel a strong connection with the cultural origin of my family
 <td align="left">IDEO</td>
 <td align="right">0</td>
 <td align="right">1</td>
-<td align="left">TRUE</td>
+<td align="left">FALSE</td>
 <td align="right">6</td>
 <td align="left">Mod: 1512, Con: 866, Lib: 563, Ver: 319</td>
 </tr>

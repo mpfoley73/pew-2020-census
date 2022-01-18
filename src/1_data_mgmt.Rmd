@@ -187,17 +187,11 @@ pew_dat_3 %>% tabyl(connection)
 I want to estimate the relationship between importance or origins and other features available in the survey. There are five interesting features: age, gender, education, state of residence, and political ideology.
 
 ```{r}
-pew_dat_4 <- pew_dat_3 %>%
+pew_dat_4 <- pew_dat_3 %>% 
   mutate(
-    IDEO = factor(
-      IDEO, 
-      levels = c("Very conservative", "Conservative", "Moderate", "Liberal", "Very liberal", "Refused"),
-      ordered = TRUE
-    ),
-    ppagecat = factor(ppagecat, ordered = TRUE),
+    IDEO = fct_relevel(IDEO, c("Moderate", "Conservative")),
     # There's a level for "under 18", but everyone is >18
     ppagecat = fct_drop(ppagecat),
-    ppeducat = factor(ppeducat, ordered = TRUE),
     CASEID = as.character(CASEID)
   ) %>%
   select(

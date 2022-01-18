@@ -24,6 +24,9 @@ library(kableExtra)
 library(questionr)
 library(survey)
 library(gtsummary)
+library(equatiomatic)
+
+set_gtsummary_theme(theme_gtsummary_compact())
 ```
 
 ```{r}
@@ -31,19 +34,76 @@ pew_0 <- readRDS("../data/1_data_mgmt.rds")
 
 # Drop vars we won't need. 
 pew_1 <- pew_0 %>%
-  select(-c(CASEID, ppstaten, ppage, ppreg4))
+  select(-c(CASEID, ppstaten, ppreg4, ppagecat))
 
 # Create a survey object. Survey objects properly handle response weights.
-svy <- svydesign(
-  ids = ~1,
-  weights = ~ weight,
-  data = pew_1
-)
+svy <- svydesign(ids = ~1, weights = ~ weight, data = pew_1)
 ```
 
-## Methods
+```{r warning=FALSE, message=FALSE}
+gt_svy_familiar <- svy %>%
+  tbl_svysummary(
+    by = "familiar",
+    percent = "row",
+    label = list(origins ~ "Origins",
+                 familiar ~ "Familiar with Origins",
+                 ppage ~ "Age",
+                 ppgender ~ "Gender",
+                 ppeducat ~ "Education",
+                 ppreg9 ~ "Region",
+                 IDEO ~ "Political Ideology"),
+    include = -c(connection, central)
+  )
 
-```{r}
+gt_svy_connection <- svy %>%
+  tbl_svysummary(
+    by = "connection",
+    percent = "row",
+    label = list(origins ~ "Origins",
+                 connection ~ "Feel a Strong Connection",
+                 ppage ~ "Age",
+                 ppgender ~ "Gender",
+                 ppeducat ~ "Education",
+                 ppreg9 ~ "Region",
+                 IDEO ~ "Political Ideology"),
+    include = -c(familiar, central)
+  )
+
+gt_svy_central <- svy %>%
+  tbl_svysummary(
+    by = "central",
+    percent = "row",
+    label = list(origins ~ "Origins",
+                 central ~ "Central to Identity",
+                 ppage ~ "Age",
+                 ppgender ~ "Gender",
+                 ppeducat ~ "Education",
+                 ppreg9 ~ "Region",
+                 IDEO ~ "Political Ideology"),
+    include = -c(familiar, connection)
+  )
+
+gt_smry_familiar <- gt_svy_familiar %>% 
+  gtsummary::modify_header(label ~ "**Variable**") %>%
+  # gtsummary::modify_spanning_header(c("stat_1", "stat_2", "stat_3") ~ "**Familiar with Origins**") %>%
+  gtsummary::add_p() %>%
+  gtsummary::modify_caption("**Table 1**. Survey Descriptive Statistics") %>%
+  gtsummary::bold_labels()
+
+gt_smry_connection <- gt_svy_connection %>% 
+  gtsummary::modify_header(label ~ "**Variable**") %>%
+  # gtsummary::modify_spanning_header(c("stat_1", "stat_2", "stat_3") ~ "**Connection with Origins**") %>%
+  gtsummary::add_p() %>%
+  # gtsummary::modify_caption("**Table 2**. Survey Descriptive Statistics: Connection with Origins") %>%
+  gtsummary::bold_labels()
+
+gt_smry_central <- gt_svy_central %>% 
+  gtsummary::modify_header(label ~ "**Variable**") %>%
+  # gtsummary::modify_spanning_header(c("stat_1", "stat_2", "stat_3") ~ "**Centrality of Origins**") %>%
+  gtsummary::add_p() %>%
+  # gtsummary::modify_caption("**Table 3**. Survey Descriptive Statistics: Centrality of Origins") %>%
+  gtsummary::bold_labels()
+
 adorn_stars <- function(estimate, p.value) {
   stars = case_when(
     p.value <= .001 ~ "***",
@@ -61,6 +121,8 @@ identity_cor <- expand_grid(
   # Remove upper right of matrix
   .[-c(4, 7, 8), ] %>%
   mutate(
+    # wtd.cor() performs a simple linear regression using standardized variables:
+    # lm(stdz(y, weight = weight) ~ stdz(x, weight = weight))
     test = map2(v1, v2, ~ weights::wtd.cor(as.numeric(pew_1[, .x]), 
                                            as.numeric(pew_1[, .y]), 
                                            weight = pew_1[, "weight"])),
@@ -68,102 +130,117 @@ identity_cor <- expand_grid(
     p.value = map_dbl(test, ~.x["Y", "p.value"]),
     est_star = map2_chr(number(estimate, .01), p.value, adorn_stars)
   )
+
+pew_2 <- pew_1 %>%
+  mutate(ppeducat = fct_collapse(ppeducat, 
+                                 "Less than Bachelors" = c("Less than high school",
+                                                           "High school",
+                                                           "Some college"),
+                                 "Bachelor's or higher" = c("Bachelor's degree or higher")),
+         ppeducat = fct_relevel(ppeducat, "Less than Bachelors"))
+
+pew_familiar <- pew_2 %>% 
+  filter(familiar != "Refused") %>% 
+  mutate(familiar = fct_drop(familiar))
+svy_familiar <- svydesign(ids = ~1, weights = ~ weight, data = pew_familiar)
+
+pew_central <- pew_2 %>% 
+  filter(central != "Refused") %>% 
+  mutate(central = fct_drop(central))
+svy_central <- svydesign(ids = ~1, weights = ~ weight, data = pew_central)
+
+pew_connection <- pew_2 %>% 
+  filter(connection != "Refused") %>% 
+  mutate(connection = fct_drop(connection))
+svy_connection <- svydesign(ids = ~1, weights = ~ weight, data = pew_connection)
+
+fmla <- formula(. ~ origins + ppage + ppgender + ppeducat + ppreg9 + IDEO)
+
+mdl_familiar <- svyglm(update(fmla, familiar ~ .), design = svy_familiar, family = quasibinomial())
+mdl_central <- svyglm(update(fmla, central ~ .), design = svy_central, family = quasibinomial())
+mdl_connection <- svyglm(update(fmla, connection ~ .), design = svy_connection, family = quasibinomial())
+
+gt_mdl_familiar <- mdl_familiar %>% tbl_regression(exponentiate = TRUE)
+gt_mdl_central <- mdl_central %>% tbl_regression(exponentiate = TRUE)
+gt_mdl_connection <- mdl_connection %>% tbl_regression(exponentiate = TRUE)
 ```
 
-The survey collected demographic features, including race and ethnicity, age, gender, education attained, region of residence, and political ideology. Three two-level questions measured the importance of cultural origins in self-identity in terms of how familiar the respondent is with their origins, how central origins are to their identity, and how connected they feel to their origins. The three questions were moderately correlated.
+## Abstract
+
+#### Purpose
+
+The importance of family origins has been shown to differ among racial/ethnic groups. This study expands upon past findings to evaluate the modulating influence of other demographic variables on this relationship.
+
+#### Methods
+
+Using a nationally representative online survey of 3,535 adults 18 years of age or older residing in the United States  conducted by Pew Research Center Jan. 3-13, 2020^[https://www.pewresearch.org/social-trends/2021/05/14/2020-census-identity-methodology/], multivariate logistic regression analyses was conducted to assess the association between demographic factors and the importance of family origins in identity formation.
+
+#### Results
+
+Gender was not significantly associated with familiarity with origins, but there was evidence that females are more likely to feel a strong connection, `r inline_text(gt_mdl_connection, variable = "ppgender", level = "Female")`, and  that origins are central to their identity, `r inline_text(gt_mdl_central, variable = "ppgender", level = "Female")`. Having at least a college education was not associated with feeling a strong connection, but it was *negatively* associated with cultural origins being central to identity, `r inline_text(gt_mdl_central, variable = "ppeducat", level = "Bachelor's or higher")`. Neither geographic location nor political ideology were significantly associated with either connection nor centrality. 
+
+#### Conclusion
+
+The importance of cultural origins is primarily a factor of cultural origins, not of other demographic features. Hispanic adults are more likely to identify with their family origins than Black adults, and both groups are much more likely to identify with their origins than White adults.
+
+## Introduction
+
+Pew's May 14, 2021 article [Black and Hispanic Americans See Their Origins as Central to Who They Are, Less So for White Adults](https://www.pewresearch.org/social-trends/2021/05/14/black-and-hispanic-americans-see-their-origins-as-central-to-who-they-are-less-so-for-white-adults/) summarized its survey findings for White, Black, and Hispanic adults. The survey found that both familiarity with and importance of cultural roots were highest among Hispanics. This much is perhaps unsurprising given the likelihood that people claiming Hispanic origin are more likely to trace their roots outside the United States. It is interesting to consider other factors that may influence responses to the importance of ancestry and whether race continues to be important after controlling for them. The survey included several other demographic variables that allow us to do this, including gender, age, level of education, polticical ideaology, and region of residence.
+
+## Methods
+
+Table 1 present descriptive statistics of the survey items grouped by responses to familiarity with cultural origins, connection to cultural origins, and whether origins are central to identity. Most adults are familiar with their origins, but Hispanic adults were most likely to report being very familiar, `r gtsummary::inline_text(gt_svy_familiar, variable = "origins", level = "Hispanic", column = "Very familiar")`. Black and Hispanic adults were likely to say they feel a strong connection to their family roots (`r inline_text(gt_svy_connection, variable = "origins", level = "Black", column = "Strong connection")` Black, `r inline_text(gt_svy_connection, variable = "origins", level = "Hispanic", column = "Strong connection")` vs only `r inline_text(gt_svy_connection, variable = "origins", level = "White", column = "Strong connection")` White) and that their origins are central to their identity (`r inline_text(gt_svy_central, variable = "origins", level = "Black", column = "Central")` Black, `r inline_text(gt_svy_central, variable = "origins", level = "Hispanic", column = "Central")` vs only `r inline_text(gt_svy_central, variable = "origins", level = "White", column = "Central")` White). The three measures of identity were moderately correlated, with $r$s ranging from `r identity_cor %>% filter(v1 != v2) %>% pull(estimate) %>% min() %>% number(.01)` to `r identity_cor %>% filter(v1 != v2) %>% pull(estimate) %>% max() %>% number(.01)` (Table 2).
+
+```{r}
+tbl_merge(tbls = list(gt_smry_familiar, gt_smry_connection, gt_smry_central),
+          tab_spanner = c("**Familiar with Origins**", 
+                          "**Feel a Strong Connection**", 
+                          "**Central to Identity**"))
+```
+
+<br>Familiarity with origins was associated with being older, higher educated, residing in coastal regions, and having non-moderate political views. A strong connection and importance of origins was associated with lower education.
 
 ```{r}
 identity_cor %>%
   pivot_wider(id_cols = v2, names_from = v1, values_from = est_star, values_fill = "") %>%
   rename(` ` = v2) %>%
-  kbl(caption = "Response variable correlations") %>%
-  kable_paper(full_width = FALSE, position = "left") %>%
-  add_footnote("*p < .05, **p < .01, ***p < .001")
+  kbl(caption = "**Table 2.** Response variable correlations") %>%
+  kable_paper(full_width = FALSE, position = "left", font_size = 12) %>%
+  add_footnote("* p < .05, ** p < .01, *** p < .001", notation = "none")
 ```
 
+A logistic regression was fit for each measure of importance using the subset of respondents who answered the question.
+
+```{r}
+extract_eq(model = mdl_familiar, intercept = "beta", 
+           wrap = TRUE, terms_per_line = 3)
+
+extract_eq(model = mdl_connection, intercept = "beta", 
+           wrap = TRUE, terms_per_line = 3)
+
+extract_eq(model = mdl_central, intercept = "beta", 
+           wrap = TRUE, terms_per_line = 3)
+```
 
 ## Results
 
-Table 1 presents descriptive statistics for the survey items. 
-
-Descriptive Statistics
+The regression results are summarized in Table 3. 
 
 ```{r}
-svy %>% 
-  gtsummary::tbl_svysummary(
-    by = "origins",
-    label = list(origins ~ "Cultural Origin",
-                 central ~ "Origins Central to Identity",
-                 familiar ~ "Familiar with Origins",
-                 connection ~ "Connected to Origins",
-                 ppagecat ~ "Age",
-                 ppgender ~ "Gender",
-                 ppeducat ~ "Education",
-                 ppreg9 ~ "Region",
-                 IDEO ~ "Political Ideology")
-  ) %>%
-  gtsummary::modify_header(label ~ "**Variable**") %>%
-  gtsummary::modify_spanning_header(c("stat_1", "stat_2", "stat_3", "stat_4") ~ "**Cultural Origin**") %>%
-  gtsummary::add_p() %>%
-  gtsummary::modify_caption("Table 1. Survey Descriptive Statistics") %>%
-  gtsummary::bold_labels()
+tbl_merge(tbls = list(gt_mdl_familiar, gt_mdl_connection, gt_mdl_central),
+          tab_spanner = c("**Familiar with Origins**", 
+                          "**Feel a Strong Connection**", 
+                          "**Central to Identity**")) %>%
+  modify_caption("**Table 3**. Regression Summary")
 ```
 
-```{r}
-# https://bookdown.org/mpfoley1973/statistics/independent-samples-discrete.html
-# https://journals.aom.org/doi/pdf/10.5465/amj.2017.1497
-# https://www.pewresearch.org/social-trends/2021/05/14/black-and-hispanic-americans-see-their-origins-as-central-to-who-they-are-less-so-for-white-adults/
-# "Men were more likely to be primary breadwinners (82% of men vs. 55% of women 
-# reported contributing 81–100% of household earnings) and to have infant or 
-# school-age children (75% of men, 58% of women)."
+## Discussion
 
-questionr::wtd.table(pew_1$origins, pew_1$ppgender, weights = pew_1$weight) %>%
-  chisq.test(correct = FALSE)
+Confirming the conclusions of the Pew analyses, Black adults were nearly twice as likely as White adults to be be familiar with their origins, `r inline_text(gt_mdl_familiar, variable = "origins", level = "Black")`. Hispanic adults were over four times as likely, `r inline_text(gt_mdl_familiar, variable = "origins", level = "Hispanic")`. Black and Hispanic adults were also significantly more likely to report being connected to their cultural origins and their origins being central to their identity.
 
-# questionr::wtd.table(pew_1$origins, pew_1$ppgender, weights = pew_1$weight) %>% 
-#   # as.data.frame()
-#   as_tibble(.name_repair = c("check_unique", "unique", "universal", "minimal")) %>%
-#   adorn_percentages()
+Gender was not significantly associated with familiarity with origins, but there was evidence that females are more likely to feel a strong connection, `r inline_text(gt_mdl_connection, variable = "ppgender", level = "Female")`, and  that origins are central to their identity, `r inline_text(gt_mdl_central, variable = "ppgender", level = "Female")`.
 
-pew_1 %>%
-  tabyl(origins, ppagecat) %>%
-  janitor::chisq.test(correct = FALSE)
+Having at least a college education was not associated with feeling a strong connection, but it was *negatively* associated with cultural orgins being central to identity, `r inline_text(gt_mdl_central, variable = "ppeducat", level = "Bachelor's or higher")`.
 
-
-pew_1 %>% 
-  group_by(origins, familiar) %>%
-  summarise(.groups = "drop", n = sum(weight)) %>%
-  pivot_wider(names_from = origins, values_from = n) %>%
-  adorn_totals() %>%
-  adorn_percentages(denominator = "col")
-
-# age, gender, education, state of residence, and political ideology
-
-
-```
-
-```{r}
-pew_1 %>% filter(origins == "White" & ppagecat == "18-24") %>%
-  summarize(n = n(), weight = sum(weight))
-```
-
-
-Those who were familiar with their origins were far more likely to feel strong connections to their roots and see their origins as central to their identity, and the reverse was also true
- 
-# Modeling
-
-```{r}
-# svyvar(~ central + familiar, svy)
-# 
-# svytable(~origins + familiar, svy) %>%
-#   as_tibble() %>% 
-#   pivot_wider(names_from = familiar, values_from = n) %>%
-#   adorn_percentages()
-# 
-svyglm(central ~ origins + ppagecat + ppgender,
-     design = svy,
-     family="binomial")
-```
-
-# Discussion
+Neither geographic location nor political ideology were significantly associated with either connection nor centrality. 
 
